@@ -78,82 +78,152 @@ module.exports = __webpack_require__(1);
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_express__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_express___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_express__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_body_parser__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_body_parser___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_body_parser__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_apollo_server_express__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_apollo_server_express___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_apollo_server_express__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_graphql_tools__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_graphql_tools___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_graphql_tools__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_apollo_client_preset__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_apollo_client_preset___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_apollo_client_preset__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_apollo_link_batch_http__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_apollo_link_batch_http___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_apollo_link_batch_http__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_node_fetch__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_node_fetch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_node_fetch__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_graphql_tag__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_graphql_tag___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_graphql_tag__);
 
 
 
 
 
-// Some fake data
-const books = [{
-  title: "Harry Potter and the Sorcerer's stone",
-  author: 'J.K. Rowling'
-}, {
-  title: 'Jurassic Park',
-  author: 'Michael Crichton'
-}];
-
-// The GraphQL schema in string form
-const typeDefs = `
-  type Query { books: [Book] }
-  type Book { title: String, author: String }
-`;
-
-// The resolvers
-const resolvers = {
-  Query: { books: () => books }
-};
-
-// Put together a schema
-const schema = Object(__WEBPACK_IMPORTED_MODULE_3_graphql_tools__["makeExecutableSchema"])({
-  typeDefs,
-  resolvers
+const client = new __WEBPACK_IMPORTED_MODULE_0_apollo_client_preset___default.a({
+  // link: new HttpLink({ uri: 'http://localhost:4000/graphql', fetch }),
+  link: new __WEBPACK_IMPORTED_MODULE_1_apollo_link_batch_http__["BatchHttpLink"]({ uri: 'http://localhost:4000/graphql' }),
+  cache: new __WEBPACK_IMPORTED_MODULE_0_apollo_client_preset__["InMemoryCache"]()
 });
 
-// Initialize the app
-const app = __WEBPACK_IMPORTED_MODULE_0_express___default()();
-
-// The GraphQL endpoint
-app.use('/graphql', __WEBPACK_IMPORTED_MODULE_1_body_parser___default.a.json(), Object(__WEBPACK_IMPORTED_MODULE_2_apollo_server_express__["graphqlExpress"])({ schema }));
-
-// GraphiQL, a visual editor for queries
-app.use('/graphiql', Object(__WEBPACK_IMPORTED_MODULE_2_apollo_server_express__["graphiqlExpress"])({ endpointURL: '/graphql' }));
-
-// Start the server
-app.listen(3000, () => {
-  console.log('Go to http://localhost:3000/graphiql to run queries!');
+// client.query({
+//   query: gql`
+//     query TodoApp {
+//       photos {
+//         id
+//         credit {
+//           id
+//         }
+//       }
+//     }
+//   `,
+// })
+//   .then(data => console.log(JSON.stringify(data, null, 2)))
+//   .catch(error => console.error(error));
+const x = client.query({
+  query: __WEBPACK_IMPORTED_MODULE_3_graphql_tag___default.a`
+    query TodoApp {
+      photos {
+        id
+      }
+    }
+  `
 });
+
+const z = client.query({
+  query: __WEBPACK_IMPORTED_MODULE_3_graphql_tag___default.a`
+    query TodoApp2 {
+      photos2 {
+        id
+      }
+    }
+  `
+});
+
+const y = Promise.all([x, x, z]);
+
+y.then(data => {
+  console.log(JSON.stringify(data, null, 2));
+});
+
+// import express from 'express'
+// import bodyParser from 'body-parser'
+// import { graphqlExpress, graphiqlExpress, ExpressGraphQLOptionsFunction } from 'apollo-server-express';
+// import { makeExecutableSchema } from 'graphql-tools'
+
+// import resolvers from './schema/resolvers'
+// import typeDefs from './schema/typeDefs'
+
+// // Some fake data
+
+// // The GraphQL schema in string form
+// // const typeDefs = `
+// //   type Book { title: String, author: String, a: String }
+// //   type RootQuery { books(b: Int!): [Book] }
+
+// //   schema {
+// //     query: RootQuery
+// //   }
+// // `;
+
+// // The resolvers
+// // const resolvers = {
+// //   RootQuery: {
+// //     books(obj, args, context) {
+// //       console.log('====================================');
+// //       console.log('obj', obj);
+// //       console.log('args', args);
+// //       console.log('context', context);
+// //       console.log('====================================');
+// //       return books
+// //     }
+// //   },
+// // };
+
+// console.log('====================================');
+// console.log(typeDefs);
+// console.log('====================================');
+
+// // Put together a schema
+// const schema = makeExecutableSchema({
+//   typeDefs,
+//   resolvers,
+//   logger: { log: (e) => console.log(e ) }
+// });
+
+// // Initialize the app
+// const app = express();
+
+// app.use((req, res, next) => {
+//   req.user = { _id: 100  }
+//   next()
+// })
+
+// // The GraphQL endpoint
+// app.use('/graphql', bodyParser.json(), graphqlExpress(req => ({ schema, context: req })));
+
+// // GraphiQL, a visual editor for queries
+// app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+
+// // Start the server
+// app.listen(3000, () => {
+//   console.log('Go to http://localhost:3000/graphiql to run queries!');
+// });
 
 /***/ }),
 /* 2 */
 /***/ (function(module, exports) {
 
-module.exports = require("express");
+module.exports = require("apollo-client-preset");
 
 /***/ }),
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = require("body-parser");
+module.exports = require("apollo-link-batch-http");
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports) {
 
-module.exports = require("apollo-server-express");
+module.exports = require("node-fetch");
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = require("graphql-tools");
+module.exports = require("graphql-tag");
 
 /***/ })
 /******/ ]);
